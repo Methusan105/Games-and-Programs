@@ -1,2 +1,2 @@
-
-https://github.com/Methusan105/Games-and-Programs/releases/download/Games/Game.Collection.exe
+# For downloading all my available pirated games:
+https://bit.ly/3VFadC1
