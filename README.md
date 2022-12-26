@@ -8,3 +8,4 @@
 - Far Cry 6
 - Forza Horizon 5
 - God Of War
+- Immortals Fenyx Rising Gold Edition
