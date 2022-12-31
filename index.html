@@ -8,6 +8,34 @@
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
 	<body class="is-preload">
+		<style>
+.arrow {
+  border: solid black;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 3px;
+}
+
+.right {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}
+
+.left {
+  transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+}
+
+.up {
+  transform: rotate(-135deg);
+  -webkit-transform: rotate(-135deg);
+}
+
+.down {
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+}
+</style>
 
 		<!-- Wrapper -->
 			<div id="wrapper" class="fade-in">
@@ -19,7 +47,7 @@
 						<p>Under here you will find the list of pirated games that are available for download <br />
 						</p>
 						<ul class="actions">
-							<li><a href="#header" class="button icon solid solo arrow down scrolly">Continue</a></li>
+							<li><a href="#you" class="button arrow down scrolly">Continue</a></li>
 						</ul>
 					</div>
 
@@ -43,7 +71,7 @@
 								<header class="major">
 									<h2><a href="#">Available Games<br /></a></h2>
 									<p>List of available games</p>
-									<ul>
+									<ul id="you">
 										<li>Cyberpunk</li>
 										<li>GTA V</li>
 										<li>Elden Ring</li>
