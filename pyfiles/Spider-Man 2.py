@@ -59,36 +59,48 @@ def download_assets_with_progress(destination_folder, assets, callback):
     callback()  # Notify that the download is complete
 
 # Function to run the extraction
-def run_extraction(destination_folder):
+def run_extraction(destination_folder, assets_to_extract, arch):
     try:
-        # Trigger the 7zG extraction command for Spider-Man.2.PC.Port.7z
-        extract_command = f'7zG x "{os.path.join(destination_folder, "Spider-Man.2.PC.Port.7z.001")}" -o"{extraction_path}"'
-        run(extract_command, shell=True, check=True)
-        
-        # If extraction was successful, delete downloaded assets
-        for asset in spiderman_assets:
-            file_name = os.path.join(destination_folder, os.path.basename(asset['browser_download_url']))
-            if os.path.exists(file_name):
-                os.remove(file_name)
-
-        # Trigger the 7zG extraction commands for other assets
-        for asset in other_assets:
-            extract_command = f'7zG x "{os.path.join(destination_folder, os.path.basename(asset["browser_download_url"]))}" -o"{extraction_path}"'
+        if arch == "Spiderman":
+            extract_command = f'7zG x "{os.path.join(destination_folder, os.path.basename("Spider-Man.2.PC.Port.7z.001"))}" -o"{extraction_path}"'
             run(extract_command, shell=True, check=True)
-            # Delete the downloaded asset after extraction
-            file_name = os.path.join(destination_folder, os.path.basename(asset['browser_download_url']))
-            if os.path.exists(file_name):
-                os.remove(file_name)
-
+            for asset in assets_to_extract:
+                file_name = os.path.join(destination_folder, os.path.basename(asset['browser_download_url']))
+                if os.path.exists(file_name):
+                    os.remove(file_name)
+        if arch == "Other":
+            extract_command = f'7zG x "{os.path.join(destination_folder, os.path.basename("update.1.3.4.rar"))}" -o"{extraction_path}"'
+            run(extract_command, shell=True, check=True)
+            extract_command = f'7zG x "{os.path.join(destination_folder, os.path.basename("update.1.3.5.zip.001"))}" -o"{extraction_path}"'
+            run(extract_command, shell=True, check=True)
+            extract_command = f'7zG x "{os.path.join(destination_folder, os.path.basename("hotfix.1.3.5.rar"))}" -o"{extraction_path}"'
+            run(extract_command, shell=True, check=True)
+            extract_command = f'7zG x "{os.path.join(destination_folder, os.path.basename("Update.1.3.6.zip.001"))}" -o"{extraction_path}"'
+            run(extract_command, shell=True, check=True)
+            for asset in assets_to_extract:
+                file_name = os.path.join(destination_folder, os.path.basename(asset['browser_download_url']))
+                if os.path.exists(file_name):
+                    os.remove(file_name)
         messagebox.showinfo("Extraction Complete", "Extraction and cleanup completed successfully.")
     except Exception as e:
         messagebox.showerror("Extraction Error", f"An error occurred during extraction: {str(e)}")
     finally:
         download_button.config(state="normal")  # Re-enable the button after extraction
 
+
 # Function to handle the download completion and initiate extraction
-def download_complete_callback():
-    run_extraction(destination_folder)
+def spiderman_download_complete_callback():
+    run_extraction(destination_folder, spiderman_assets, "Spiderman")
+    download_button.config(state="normal")  # Re-enable the button after Spider-Man assets extraction
+    download_other_assets()  # Proceed to download other assets
+
+# Function to handle the download of other assets after Spider-Man assets extraction
+def download_other_assets():
+    download_assets_with_progress(destination_folder, other_assets, other_assets_download_complete_callback)
+
+# Function to handle the download completion of other assets and initiate extraction
+def other_assets_download_complete_callback():
+    run_extraction(destination_folder, other_assets, "Other")
 
 # Create a tkinter window
 root = tk.Tk()
@@ -133,7 +145,9 @@ for asset in assets:
         other_assets.append(asset)
 
 # Button to start the download
-download_button = tk.Button(root, text="Download", command=lambda: download_assets_with_progress(destination_folder, spiderman_assets + other_assets, download_complete_callback))
+download_button = tk.Button(root, text="Download", command=lambda: download_assets_with_progress(destination_folder, spiderman_assets, spiderman_download_complete_callback))
 download_button.pack()
 # Start the tkinter main loop
 root.mainloop()
+
+
