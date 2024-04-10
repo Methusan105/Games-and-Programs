@@ -17,7 +17,7 @@ def select_extraction_path():
 def get_file_size(file_path):
     return os.path.getsize(file_path) if os.path.exists(file_path) else 0
 
-# Function to download assets with progress bar
+# Function to download a single asset with progress bar
 def download_asset(asset, destination_folder):
     try:
         asset_url = asset['browser_download_url']
@@ -46,6 +46,7 @@ def download_asset(asset, destination_folder):
     except Exception as e:
         print(f"An error occurred during download: {str(e)}")
 
+# Function to download assets with progress bar
 def download_assets_with_progress(destination_folder, assets, callback):
     # Create the destination folder if it doesn't exist
     os.makedirs(destination_folder, exist_ok=True)
@@ -57,16 +58,24 @@ def download_assets_with_progress(destination_folder, assets, callback):
 
     callback()  # Notify that the download is complete
 
-
 # Function to run the extraction
 def run_extraction(destination_folder):
     try:
-        # Trigger the 7zG extraction command
-        extract_command = f'7zG x "{os.path.join(destination_folder, "Grand.Theft.Auto.V.zip.001")}" -o"{extraction_path}"'
+        # Trigger the 7zG extraction command for Spider-Man.2.PC.Port.7z
+        extract_command = f'7zG x "{os.path.join(destination_folder, "Spider-Man.2.PC.Port.7z.001")}" -o"{extraction_path}"'
         run(extract_command, shell=True, check=True)
+        
+        # If extraction was successful, delete downloaded assets
+        for asset in spiderman_assets:
+            file_name = os.path.join(destination_folder, os.path.basename(asset['browser_download_url']))
+            if os.path.exists(file_name):
+                os.remove(file_name)
 
-        # If the extraction was successful, delete downloaded assets
-        for asset in assets:
+        # Trigger the 7zG extraction commands for other assets
+        for asset in other_assets:
+            extract_command = f'7zG x "{os.path.join(destination_folder, os.path.basename(asset["browser_download_url"]))}" -o"{extraction_path}"'
+            run(extract_command, shell=True, check=True)
+            # Delete the downloaded asset after extraction
             file_name = os.path.join(destination_folder, os.path.basename(asset['browser_download_url']))
             if os.path.exists(file_name):
                 os.remove(file_name)
@@ -104,7 +113,7 @@ destination_folder = r'C:\Downloads'  # Change this to your desired folder
 # Define the GitHub repository details
 owner = "Methusan105"
 repo = "Games-and-Programs"
-tag = "GV"
+tag = "SM2PC"
 
 # Get the release information
 url = f"https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}"
@@ -114,9 +123,17 @@ release_data = response.json()
 # Get the assets
 assets = release_data['assets']
 
-# Button to start the download
-download_button = tk.Button(root, text="Download", command=lambda: download_assets_with_progress(destination_folder, assets, download_complete_callback))
-download_button.pack()
+# Separate Spider-Man.2.PC.Port.7z and other assets
+spiderman_assets = []
+other_assets = []
+for asset in assets:
+    if "Spider-Man.2.PC.Port.7z" in asset['browser_download_url']:
+        spiderman_assets.append(asset)
+    else:
+        other_assets.append(asset)
 
+# Button to start the download
+download_button = tk.Button(root, text="Download", command=lambda: download_assets_with_progress(destination_folder, spiderman_assets + other_assets, download_complete_callback))
+download_button.pack()
 # Start the tkinter main loop
 root.mainloop()

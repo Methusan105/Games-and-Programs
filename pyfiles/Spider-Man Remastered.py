@@ -5,6 +5,7 @@ from tkinter import messagebox
 import requests
 from tqdm import tqdm
 from subprocess import run, PIPE
+from concurrent.futures import ThreadPoolExecutor
 
 # Function to select the extraction path
 def select_extraction_path():
@@ -17,39 +18,45 @@ def get_file_size(file_path):
     return os.path.getsize(file_path) if os.path.exists(file_path) else 0
 
 # Function to download assets with progress bar
+def download_asset(asset, destination_folder):
+    try:
+        asset_url = asset['browser_download_url']
+        file_name = os.path.join(destination_folder, os.path.basename(asset_url))
+
+        # Check if the file exists and has the correct size
+        expected_size = asset['size']
+        existing_size = get_file_size(file_name)
+
+        if existing_size == expected_size:
+            print(f"Skipping {file_name}, already exists with correct size.")
+            return
+
+        with requests.get(asset_url, stream=True) as response:
+            with open(file_name, 'wb') as file, tqdm(
+                desc=os.path.basename(asset_url),
+                total=int(response.headers.get('content-length', 0)),
+                unit='B',
+                unit_scale=True,
+                unit_divisor=1024,
+            ) as bar:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        file.write(chunk)
+                        bar.update(len(chunk))
+    except Exception as e:
+        print(f"An error occurred during download: {str(e)}")
+
 def download_assets_with_progress(destination_folder, assets, callback):
     # Create the destination folder if it doesn't exist
     os.makedirs(destination_folder, exist_ok=True)
 
-    try:
+    # Use ThreadPoolExecutor to limit concurrent downloads to 5
+    with ThreadPoolExecutor(max_workers=5) as executor:
         for asset in assets:
-            asset_url = asset['browser_download_url']
-            file_name = os.path.join(destination_folder, os.path.basename(asset_url))
+            executor.submit(download_asset, asset, destination_folder)
 
-            # Check if the file exists and has the correct size
-            expected_size = asset['size']
-            existing_size = get_file_size(file_name)
+    callback()  # Notify that the download is complete
 
-            if existing_size == expected_size:
-                print(f"Skipping {file_name}, already exists with correct size.")
-                continue
-
-            with requests.get(asset_url, stream=True) as response:
-                with open(file_name, 'wb') as file, tqdm(
-                    desc=os.path.basename(asset_url),
-                    total=int(response.headers.get('content-length', 0)),
-                    unit='B',
-                    unit_scale=True,
-                    unit_divisor=1024,
-                ) as bar:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        if chunk:
-                            file.write(chunk)
-                            bar.update(len(chunk))
-
-        callback()  # Notify that the download is complete
-    except Exception as e:
-        messagebox.showerror("Download Error", f"An error occurred during download: {str(e)}")
 
 # Function to run the extraction
 def run_extraction(destination_folder):
