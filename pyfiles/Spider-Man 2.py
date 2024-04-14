@@ -69,21 +69,23 @@ def run_extraction(destination_folder, assets_to_extract, arch):
                 if os.path.exists(file_name):
                     os.remove(file_name)
         if arch == "Other":
-            Update1 = f'7zG x "{os.path.join(destination_folder, os.path.basename("update.1.3.4.rar"))}" -o"{extraction_path}"'
+            Update1 = f'7zG x "{os.path.join(destination_folder, os.path.basename("update.1.3.4.rar"))}" -o"{extraction_path}" -y'
             run(Update1, shell=True, check=True)
-            Update2 = f'7zG x "{os.path.join(destination_folder, os.path.basename("update.1.3.5.zip.001"))}" -o"{extraction_path}"'
+            Update2 = f'7zG x "{os.path.join(destination_folder, os.path.basename("update.1.3.5.zip.001"))}" -o"{extraction_path}" -y'
             run(Update2, shell=True, check=True)
-            Update3 = f'7zG x "{os.path.join(destination_folder, os.path.basename("hotfix.1.3.5.rar"))}" -o"{extraction_path}"'
+            Update3 = f'7zG x "{os.path.join(destination_folder, os.path.basename("hotfix.1.3.5.rar"))}" -o"{extraction_path}" -y'
             run(Update3, shell=True, check=True)
-            Update4 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Update.1.3.6.zip.001"))}" -o"{extraction_path}"'
+            Update4 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Update.1.3.6.zip.001"))}" -o"{extraction_path}" -y'
             run(Update4, shell=True, check=True)
-            Update5 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Update.1.3.7.rar"))}" -o"{extraction_path}"'
+            Update5 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Update.1.3.7.rar"))}" -o"{extraction_path}" -y'
             run(Update5, shell=True, check=True)
+            Launcher_Update1 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Launcher.Update.1.zip"))}" -o"{extraction_path}" -y'
+            run(Launcher_Update1, shell=True, check=True)
             for asset in assets_to_extract:
                 file_name = os.path.join(destination_folder, os.path.basename(asset['browser_download_url']))
                 if os.path.exists(file_name):
                     os.remove(file_name)
-        messagebox.showinfo("Extraction Complete", "Extraction and cleanup completed successfully.")
+            messagebox.showinfo("Extraction Complete", "Extraction and cleanup completed successfully.")
     except Exception as e:
         messagebox.showerror("Extraction Error", f"An error occurred during extraction: {str(e)}")
     finally:
