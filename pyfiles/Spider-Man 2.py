@@ -79,8 +79,8 @@ def run_extraction(destination_folder, assets_to_extract, arch):
             run(Update4, shell=True, check=True)
             Update5 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Update.1.3.7.rar"))}" -o"{extraction_path}" -y'
             run(Update5, shell=True, check=True)
-            Launcher_Update1 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Launcher.Update.1.zip"))}" -o"{extraction_path}" -y'
-            run(Launcher_Update1, shell=True, check=True)
+            """ Launcher_Update1 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Launcher.Update.1.zip"))}" -o"{extraction_path}" -y'
+            run(Launcher_Update1, shell=True, check=True) """
             for asset in assets_to_extract:
                 file_name = os.path.join(destination_folder, os.path.basename(asset['browser_download_url']))
                 if os.path.exists(file_name):
