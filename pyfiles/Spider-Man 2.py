@@ -68,6 +68,7 @@ def run_extraction(destination_folder, assets_to_extract, arch):
                 file_name = os.path.join(destination_folder, os.path.basename(asset['browser_download_url']))
                 if os.path.exists(file_name):
                     os.remove(file_name)
+            messagebox.showinfo("Extraction Complete", "Extraction and cleanup completed successfully.")
         if arch == "Other":
             Update1 = f'7zG x "{os.path.join(destination_folder, os.path.basename("update.1.3.4.rar"))}" -o"{extraction_path}" -y'
             run(Update1, shell=True, check=True)
@@ -100,7 +101,7 @@ def run_extraction(destination_folder, assets_to_extract, arch):
 def spiderman_download_complete_callback():
     run_extraction(destination_folder, spiderman_assets, "Spiderman")
     download_button.config(state="normal")  # Re-enable the button after Spider-Man assets extraction
-    download_other_assets()  # Proceed to download other assets
+    """ download_other_assets() """   # Proceed to download other assets
 
 # Function to handle the download of other assets after Spider-Man assets extraction
 def download_other_assets():

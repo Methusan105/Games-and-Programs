@@ -1,8 +1,8 @@
 import os
-release_file_path = r"C:\Users\Methu\Downloads\Compressed\Update\Update.1.4.0.zip"
+release_file_path = r"C:\Users\Methu\Documents\SM2\Spider-Man.2.PC.Port.7z"
 
 # Assuming you want to iterate from 1 to 12
-for i in range(1, 18):
+for i in range(1, 48):
     file_number = f"{i:03d}"  # Format the number with leading zeros
     file_path = f'{release_file_path}.{file_number}'
     
