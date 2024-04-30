@@ -70,22 +70,8 @@ def run_extraction(destination_folder, assets_to_extract, arch):
                     os.remove(file_name)
             messagebox.showinfo("Extraction Complete", "Extraction and cleanup completed successfully.")
         if arch == "Other":
-            Update1 = f'7zG x "{os.path.join(destination_folder, os.path.basename("update.1.3.4.rar"))}" -o"{extraction_path}" -y'
+            Update1 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Update.1.4.4.7z.001"))}" -o"{extraction_path}" -y'
             run(Update1, shell=True, check=True)
-            Update2 = f'7zG x "{os.path.join(destination_folder, os.path.basename("update.1.3.5.zip.001"))}" -o"{extraction_path}" -y'
-            run(Update2, shell=True, check=True)
-            Update3 = f'7zG x "{os.path.join(destination_folder, os.path.basename("hotfix.1.3.5.rar"))}" -o"{extraction_path}" -y'
-            run(Update3, shell=True, check=True)
-            Update4 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Update.1.3.6.zip.001"))}" -o"{extraction_path}" -y'
-            run(Update4, shell=True, check=True)
-            Update5 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Update.1.3.7.rar"))}" -o"{extraction_path}" -y'
-            run(Update5, shell=True, check=True)
-            Update6 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Update.1.4.0.zip.001"))}" -o"{extraction_path}" -y'
-            run(Update6, shell=True, check=True)
-            Launcher_Update1 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Launcher.Update.1.zip"))}" -o"{extraction_path}" -y'
-            run(Launcher_Update1, shell=True, check=True)
-            Update7 = f'7zG x "{os.path.join(destination_folder, os.path.basename("Update.1.4.1.rar"))}" -o"{extraction_path}" -y'
-            run(Update7, shell=True, check=True)
             for asset in assets_to_extract:
                 file_name = os.path.join(destination_folder, os.path.basename(asset['browser_download_url']))
                 if os.path.exists(file_name):
