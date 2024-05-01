@@ -87,7 +87,7 @@ def run_extraction(destination_folder, assets_to_extract, arch):
 def spiderman_download_complete_callback():
     run_extraction(destination_folder, spiderman_assets, "Spiderman")
     download_button.config(state="normal")  # Re-enable the button after Spider-Man assets extraction
-    """ download_other_assets() """   # Proceed to download other assets
+    download_other_assets()   # Proceed to download other assets
 
 # Function to handle the download of other assets after Spider-Man assets extraction
 def download_other_assets():
