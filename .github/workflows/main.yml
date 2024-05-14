@@ -1,0 +1,35 @@
+name: Download Release Assets
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  download_assets:
+    name: Download Assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install aria2
+        run: sudo apt-get install -y aria2
+        
+      - name: Download Release Assets
+        run: |
+          aria2c --dir=./downloaded_assets --input-file=release_assets.txt
+        env:
+          RELEASE_URL: ${{ github.event.inputs.release_url }}
+          ASSETS_FILE: ./release_assets.txt
+
+      - name: Create assets list
+        run: |
+          curl -sL $RELEASE_URL |
+          grep -oP '(?<="browser_download_url":"a)[^"]*' > $ASSETS_FILE
+
+      - name: Archive downloaded assets
+        uses: actions/upload-artifact@v2
+        with:
+          name: downloaded-assets
+          path: ./downloaded_assets
