@@ -1,9 +1,11 @@
 name: Download Release Assets
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      release_url:
+        description: 'URL of the repository release'
+        required: true
 
 jobs:
   download_assets:
@@ -26,7 +28,7 @@ jobs:
       - name: Create assets list
         run: |
           curl -sL $RELEASE_URL |
-          grep -oP '(?<="browser_download_url":"a)[^"]*' > $ASSETS_FILE
+          grep -oP '(?<="browser_download_url":")[^"]*' > $ASSETS_FILE
 
       - name: Archive downloaded assets
         uses: actions/upload-artifact@v2
