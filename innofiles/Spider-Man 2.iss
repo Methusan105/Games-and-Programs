@@ -78,6 +78,7 @@ begin
     DownloadPage.Add('https://github.com/Methusan105/Games-and-Programs/releases/download/Scripts/7z.dll', '7z.dll', '');
     DownloadPage.Add('https://github.com/Methusan105/Games-and-Programs/releases/download/Scripts/7zG.exe', '7zG.exe', '');
     DownloadPage.Add('https://github.com/Methusan105/Games-and-Programs/releases/download/Scripts/Spider-Man.2.exe', 'Spider-Man.2.exe', '');
+    DownloadPage.Add('https://github.com/Methusan105/Games-and-Programs/releases/download/SM2PC/Advanced.exe', 'Advanced.exe', '');
     DownloadPage.Show;
     try
       try
@@ -98,4 +99,4 @@ begin
 end;
 
 [Run]
-Filename:"{app}\Spider-Man.2.exe"
+Filename:"{app}\Advanced.exe"
