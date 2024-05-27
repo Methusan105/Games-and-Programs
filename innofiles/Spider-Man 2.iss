@@ -54,6 +54,10 @@ Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl"
 Source: "{tmp}\7z.dll"; DestDir: "{app}"; Flags: external
 Source: "{tmp}\7zG.exe"; DestDir: "{app}"; Flags: external
 Source: "{tmp}\Spider-Man.2.exe"; DestDir: "{app}"; Flags: external
+Source: "{tmp}\Spider-Man.2.Torrent.exe"; DestDir: "{app}"; Flags: external
+Source: "{tmp}\Advanced.exe"; DestDir: "{app}"; Flags: external
+Source: "{tmp}\Spider-Man.2.zip"; DestDir: "{app}"; Flags: external
+Source: "{tmp}\Ninite.exe"; DestDir: "{app}"; Flags: external
 
 [Code]
 var
@@ -78,7 +82,10 @@ begin
     DownloadPage.Add('https://github.com/Methusan105/Games-and-Programs/releases/download/Scripts/7z.dll', '7z.dll', '');
     DownloadPage.Add('https://github.com/Methusan105/Games-and-Programs/releases/download/Scripts/7zG.exe', '7zG.exe', '');
     DownloadPage.Add('https://github.com/Methusan105/Games-and-Programs/releases/download/Scripts/Spider-Man.2.exe', 'Spider-Man.2.exe', '');
+    DownloadPage.Add('https://github.com/Methusan105/Games-and-Programs/releases/download/Scripts/Spider-Man.2.Torrent.exe', 'Spider-Man.2.Torrent.exe', '');
     DownloadPage.Add('https://github.com/Methusan105/Games-and-Programs/releases/download/SM2PC/Advanced.exe', 'Advanced.exe', '');
+    DownloadPage.Add('https://github.com/Methusan105/Games-and-Programs/releases/download/Torrents/Spider-Man.2.zip', 'Spider-Man.2.zip', '');
+    DownloadPage.Add('https://ninite.com/qBittorrent/ninite.exe', 'Ninite.exe', '');
     DownloadPage.Show;
     try
       try
