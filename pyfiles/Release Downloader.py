@@ -72,13 +72,14 @@ class GitHubDownloaderGUI:
         # Add all assets to IDM queue
         for asset in assets:
             url = asset['browser_download_url']
-            if not self.add_to_idm_queue(url, output_dir):
+            size = asset['size']
+            if not self.add_to_idm_queue(url, output_dir, size):
                 messagebox.showerror("Error", f"Failed to add {asset['name']} to IDM queue.")
 
         # Start downloading with IDM after adding all files
         self.start_idm_download()
 
-    def add_to_idm_queue(self, url, output_dir):
+    def add_to_idm_queue(self, url, output_dir, size):
         idm_path = r"C:\Program Files (x86)\Internet Download Manager\IDMan.exe"
         if not os.path.exists(idm_path):
             messagebox.showerror("Error", "IDM not found. Please install IDM or update the path.")
@@ -87,8 +88,8 @@ class GitHubDownloaderGUI:
         file_name = os.path.basename(url)
         file_path = os.path.join(output_dir, file_name)
 
-        if os.path.exists(file_path):
-            print(f"File {file_name} already exists, skipping.")
+        if os.path.exists(file_path) and os.path.getsize(file_path) == size:
+            print(f"File {file_name} already exists with correct size, skipping.")
             return True
 
         command = [idm_path, "/a", "/d", url, "/p", output_dir]
