@@ -42,7 +42,7 @@ class GitHubDownloaderGUI:
         if response.status_code == 200:
             releases = response.json()
             self.releases = releases
-            release_names = [release['tag_name'] for release in releases]
+            release_names = [release['name'] for release in releases]
             self.release_combobox['values'] = release_names
             if release_names:
                 self.release_combobox.set(release_names[0])
