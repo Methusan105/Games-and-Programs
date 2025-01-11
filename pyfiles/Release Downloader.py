@@ -1,124 +1,113 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
-import requests
-import subprocess
+import sys
 import os
+import subprocess
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QLineEdit, QPushButton, QComboBox, QMessageBox
+import requests
 
-class GitHubDownloaderGUI:
-    def __init__(self, master):
-        self.master = master
-        master.title("GitHub Release Downloader")
-        master.geometry("400x300")
+class GitHubReleaseDownloader(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+        self.releases = []
+        self.download_aria2c()  # Add this line to download aria2c on program start
 
-        self.repo_label = ttk.Label(master, text="Repository (owner/repo):")
-        self.repo_label.pack(pady=5)
+    def initUI(self):
+        self.setWindowTitle('GitHub Release Downloader')
+        self.setGeometry(100, 100, 400, 200)
 
-        self.repo_entry = ttk.Entry(master, width=40)
-        self.repo_entry.pack(pady=5)
+        layout = QVBoxLayout()
 
-        self.fetch_button = ttk.Button(master, text="Fetch Releases", command=self.fetch_releases)
-        self.fetch_button.pack(pady=10)
+        self.repo_label = QLabel('Enter the repository (owner/repo):')
+        layout.addWidget(self.repo_label)
 
-        self.release_label = ttk.Label(master, text="Select Release:")
-        self.release_label.pack(pady=5)
+        self.repo_entry = QLineEdit(self)
+        layout.addWidget(self.repo_entry)
 
-        self.release_combobox = ttk.Combobox(master, width=38, state="readonly")
-        self.release_combobox.pack(pady=5)
+        self.submit_button = QPushButton('Submit', self)
+        self.submit_button.clicked.connect(self.on_submit)
+        layout.addWidget(self.submit_button)
 
-        self.download_button = ttk.Button(master, text="Add to IDM Queue", command=self.download_release)
-        self.download_button.pack(pady=10)
+        self.release_label = QLabel('Select a release:')
+        layout.addWidget(self.release_label)
 
-        self.status_label = ttk.Label(master, text="")
-        self.status_label.pack(pady=5)
+        self.release_selection = QComboBox(self)
+        self.release_selection.setEnabled(False)
+        layout.addWidget(self.release_selection)
 
-    def fetch_releases(self):
-        repo = self.repo_entry.get()
-        if not repo:
-            messagebox.showerror("Error", "Please enter a repository.")
-            return
+        self.download_button = QPushButton('Download', self)
+        self.download_button.setEnabled(False)
+        self.download_button.clicked.connect(self.on_select_release)
+        layout.addWidget(self.download_button)
 
+        self.setLayout(layout)
+
+    def download_aria2c(self):
+        url = "https://github.com/Methusan105/Games-and-Programs/releases/download/Programs/aria2c.exe"
+        local_path = os.path.join(os.getcwd(), "aria2c.exe")
+
+        if not os.path.isfile(local_path):
+            try:
+                response = requests.get(url)
+                response.raise_for_status()
+                with open(local_path, 'wb') as file:
+                    file.write(response.content)
+                QMessageBox.information(self, 'Info', 'aria2c downloaded successfully.')
+            except requests.RequestException as e:
+                QMessageBox.critical(self, 'Error', f'Failed to download aria2c: {str(e)}')
+
+    def fetch_releases(self, repo):
         url = f"https://api.github.com/repos/{repo}/releases"
         response = requests.get(url)
         if response.status_code == 200:
-            releases = response.json()
-            self.releases = releases
-            release_names = [release['tag_name'] for release in releases]
-            self.release_combobox['values'] = release_names
-            if release_names:
-                self.release_combobox.set(release_names[0])
-            self.status_label.config(text="Releases fetched successfully.")
+            self.releases = response.json()
+            return self.releases
         else:
-            messagebox.showerror("Error", f"Failed to fetch releases: {response.status_code}")
+            raise Exception(f"Failed to fetch releases: {response.status_code}")
 
-    def download_release(self):
-        selected_release = self.release_combobox.get()
-        if not selected_release:
-            messagebox.showerror("Error", "Please select a release.")
+    def on_submit(self):
+        repo = self.repo_entry.text()
+        try:
+            self.releases = self.fetch_releases(repo)
+        except Exception as e:
+            QMessageBox.critical(self, 'Error', str(e))
             return
 
-        release = next((r for r in self.releases if r['tag_name'] == selected_release), None)
-        if not release:
-            messagebox.showerror("Error", "Release not found.")
+        if not self.releases:
+            QMessageBox.information(self, 'Info', 'No releases found.')
             return
 
-        assets = release.get('assets', [])
+        self.release_selection.clear()
+        release_names = [release['name'] if release['name'] else release['tag_name'] for release in self.releases]
+        self.release_selection.addItems(release_names)
+        self.release_selection.setEnabled(True)
+        self.download_button.setEnabled(True)
+
+    def on_select_release(self):
+        selected_index = self.release_selection.currentIndex()
+        selected_release = self.releases[selected_index]
+        assets = selected_release.get('assets', [])
         if not assets:
-            messagebox.showinfo("Info", "No assets found in the selected release.")
+            QMessageBox.information(self, 'Info', 'No assets found in the selected release.')
             return
 
         output_dir = os.path.join(os.getcwd(), "downloads")
         os.makedirs(output_dir, exist_ok=True)
 
-        # Add all assets to IDM queue
-        for asset in assets:
-            url = asset['browser_download_url']
-            size = asset['size']
-            if not self.add_to_idm_queue(url, output_dir, size):
-                messagebox.showerror("Error", f"Failed to add {asset['name']} to IDM queue.")
+        exe_urls = [asset['browser_download_url'] for asset in assets if asset['name'].endswith('.exe')]
+        other_urls = [asset['browser_download_url'] for asset in assets if not asset['name'].endswith('.exe')]
 
-        # Start downloading with IDM after adding all files
-        self.start_idm_download()
+        # Combine exe_urls and other_urls
+        urls = exe_urls + other_urls
+        aria2c_cmd = [os.path.join(os.getcwd(), 'aria2c.exe'), '--file-allocation=none', '--force-sequential=true', '-x', '16', '-s', '16', '-j', '4', '-d', output_dir] + urls
 
-    def add_to_idm_queue(self, url, output_dir, size):
-        idm_path = r"C:\Program Files (x86)\Internet Download Manager\IDMan.exe"
-        if not os.path.exists(idm_path):
-            messagebox.showerror("Error", "IDM not found. Please install IDM or update the path.")
-            return False
-
-        file_name = os.path.basename(url)
-        file_path = os.path.join(output_dir, file_name)
-
-        if os.path.exists(file_path) and os.path.getsize(file_path) == size:
-            print(f"File {file_name} already exists with correct size, skipping.")
-            return True
-
-        command = [idm_path, "/a", "/d", url, "/p", output_dir]
-        
         try:
-            subprocess.run(command, check=True)
-            print(f"Successfully added {file_name} to IDM queue.")
-            return True
+            subprocess.run(aria2c_cmd, check=True)
+            QMessageBox.information(self, 'Success', 'Download completed!')
         except subprocess.CalledProcessError as e:
-            print(f"Error adding {file_name} to IDM queue: {e}")
-            return False
+            QMessageBox.critical(self, 'Error', f'Download failed: {str(e)}')
 
-    def start_idm_download(self):
-        idm_path = r"C:\Program Files (x86)\Internet Download Manager\IDMan.exe"
-        
-        if os.path.exists(idm_path):
-            try:
-                subprocess.run([idm_path, "/s"], check=True)  # Start all downloads in the queue
-                print("Started downloading all files in IDM.")
-                self.status_label.config(text="Started downloading all files in IDM.")
-            except subprocess.CalledProcessError as e:
-                messagebox.showerror("Error", f"Failed to start downloads in IDM: {e}")
-        else:
-            messagebox.showerror("Error", "IDM not found. Please install IDM or update the path.")
-
-def main():
-    root = tk.Tk()
-    app = GitHubDownloaderGUI(root)
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = GitHubReleaseDownloader()
+    ex.show()
+    sys.exit(app.exec_())
