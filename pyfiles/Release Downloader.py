@@ -9,7 +9,7 @@ class GitHubReleaseDownloader(QWidget):
         super().__init__()
         self.initUI()
         self.releases = []
-        self.download_aria2c()  # Add this line to download aria2c on program start
+        self.download_aria2c()
 
     def initUI(self):
         self.setWindowTitle('GitHub Release Downloader')
@@ -54,6 +54,8 @@ class GitHubReleaseDownloader(QWidget):
                 QMessageBox.information(self, 'Info', 'aria2c downloaded successfully.')
             except requests.RequestException as e:
                 QMessageBox.critical(self, 'Error', f'Failed to download aria2c: {str(e)}')
+        else:
+            print("aria2c.exe already exists. Skipping download.")
 
     def fetch_releases(self, repo):
         url = f"https://api.github.com/repos/{repo}/releases"
@@ -93,12 +95,19 @@ class GitHubReleaseDownloader(QWidget):
         output_dir = os.path.join(os.getcwd(), "downloads")
         os.makedirs(output_dir, exist_ok=True)
 
-        exe_urls = [asset['browser_download_url'] for asset in assets if asset['name'].endswith('.exe')]
-        other_urls = [asset['browser_download_url'] for asset in assets if not asset['name'].endswith('.exe')]
+        urls = []
+        for asset in assets:
+            file_path = os.path.join(output_dir, asset['name'])
+            if os.path.exists(file_path) and os.path.getsize(file_path) == asset['size']:
+                print(f"File {asset['name']} already exists with correct size. Skipping download.")
+            else:
+                urls.append(asset['browser_download_url'])
 
-        # Combine exe_urls and other_urls
-        urls = exe_urls + other_urls
-        aria2c_cmd = [os.path.join(os.getcwd(), 'aria2c.exe'), '--file-allocation=none', '--force-sequential=true', '-x', '16', '-s', '16', '-j', '4', '-d', output_dir] + urls
+        if not urls:
+            QMessageBox.information(self, 'Info', 'All files already exist with correct sizes. Nothing to download.')
+            return
+
+        aria2c_cmd = [os.path.join(os.getcwd(), 'aria2c.exe'), '--file-allocation=none', '--force-sequential=true', '-x', '16', '-s', '16', '-j', '4', '-d', output_dir, '--auto-file-renaming=false', '--continue=true'] + urls
 
         try:
             subprocess.run(aria2c_cmd, check=True)
