@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Spider-Man 2"
-#define MyAppVersion "1.5.6"
+#define MyAppVersion "1.312"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -18,7 +18,7 @@ AllowNoIcons=yes
 ;PrivilegesRequired=lowest
 OutputDir=C:\Users\Methu\Downloads\SM2
 OutputBaseFilename=Spider-Man.2
-Compression=lzma2/ultra64
+Compression=none
 DiskSpanning=yes
 SolidCompression=yes
 WizardStyle=modern
@@ -53,7 +53,7 @@ Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
 Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl"
 
 [Files]
-Source: "D:\SM2\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\Spider-Man 2\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
