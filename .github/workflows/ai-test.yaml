@@ -1,39 +1,71 @@
-# vision_ai.yaml
+name: Local AI Image Analyzer
 
-name: Image Answer AI
-description: AI assistant that accepts images and answers questions
+on:
+  workflow_dispatch:
+    inputs:
+      image_url:
+        description: "Image URL"
+        required: true
+        type: string
+      question:
+        description: "Question"
+        required: false
+        default: "Describe this image."
 
-model:
-  provider: openai
-  name: gpt-5.5-mini
-  capabilities:
-    - vision
-    - text
+jobs:
+  vision:
+    runs-on: ubuntu-latest
 
-input:
-  type: image
-  formats:
-    - "*"
-  images:
-    max_count: unlimited
-    max_size: unlimited
+    steps:
+      - name: Install Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
 
-behavior:
-  role: assistant
-  instructions:
-    - Analyze any uploaded image.
-    - Answer questions about images.
-    - Explain objects, text, people, scenes, and details.
-    - Provide reasoning when useful.
-    - Ask for clarification when the image is unclear.
-    - Never pretend to see details that are not visible.
+      - name: Start Ollama
+        run: |
+          ollama serve &
+          sleep 5
 
-output:
-  type: text
-  format: markdown
-  length: unlimited
+      - name: Download vision model
+        run: |
+          ollama pull llava
 
-limits:
-  requests: unlimited
-  tokens: unlimited
-  images: unlimited
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget
+          pip install requests
+
+      - name: Analyze image
+        env:
+          IMAGE_URL: ${{ github.event.inputs.image_url }}
+          QUESTION: ${{ github.event.inputs.question }}
+        run: |
+          python3 <<'PY'
+          import os
+          import requests
+          import base64
+          import json
+          import subprocess
+
+          url = os.environ["IMAGE_URL"]
+          question = os.environ["QUESTION"]
+
+          img = requests.get(url).content
+
+          encoded = base64.b64encode(img).decode()
+
+          payload = {
+              "model": "llava",
+              "prompt": question,
+              "images": [encoded],
+              "stream": False
+          }
+
+          result = requests.post(
+              "http://localhost:11434/api/generate",
+              json=payload
+          )
+
+          print(result.json()["response"])
+          PY
