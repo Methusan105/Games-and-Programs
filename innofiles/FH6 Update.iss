@@ -2,37 +2,31 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 ; Non-commercial use only
 
-#define MyAppName "Forza Horizon 6 with Online Fix"
-#define MyAppVersion "379.939"
+#define MyAppName "Forza Horizon 6 Update"
+#define MyAppVersion "360.259"
 #expr EmitLanguagesSection
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{74D895C0-82BF-45DA-8539-537E23AF155B}
+AppId={{1D15A48A-2F02-4314-B115-4230E8B75E4C}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
-DefaultDirName=C:\{#MyAppName}
+DefaultDirName=C:\Forza Horizon 6
 DefaultGroupName={#MyAppName}
+AllowNoIcons=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=commandline
-OutputDir=C:\Users\Admin\Downloads\FH6
-OutputBaseFilename=Forza.Horizon.6
-; Use LZMA2 but slightly dial back the dictionary to fit your 16GB RAM
-LZMAUseSeparateProcess=yes
-Compression=lzma2/max
-LZMADictionarySize=131072
-LZMANumBlockThreads=1
+OutputDir=C:\Users\Admin\Downloads
+OutputBaseFilename=FH6.v360.259.Update
 SolidCompression=yes
-
-; MANDATORY: Split the 155GB app into multiple external .bin files
+Compression=none
 DiskSpanning=yes
-
 WizardStyle=modern dynamic
 
 [Files]
-Source: "E:\Forza Horizon 6\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\Admin\Downloads\ABDM\FH6.v360.259.Update\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
