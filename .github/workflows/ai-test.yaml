@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       image_url:
-        description: "Image URL"
+        description: "Direct image URL"
         required: true
         type: string
       question:
         description: "Question"
         required: false
-        default: "Describe this image."
+        default: "Describe this image in detail."
 
 jobs:
   vision:
@@ -23,49 +23,94 @@ jobs:
 
       - name: Start Ollama
         run: |
-          ollama serve &
-          sleep 5
+          nohup ollama serve > ollama.log 2>&1 &
+          
+          echo "Waiting for Ollama..."
+          for i in {1..30}; do
+            if curl -s http://localhost:11434/api/tags > /dev/null; then
+              echo "Ollama is ready"
+              break
+            fi
+            sleep 2
+          done
 
       - name: Download vision model
         run: |
           ollama pull llava
 
-      - name: Install tools
+      - name: Check Ollama
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget
+          ollama list
+          curl http://localhost:11434/api/tags
+
+      - name: Install Python tools
+        run: |
           pip install requests
 
       - name: Analyze image
         env:
           IMAGE_URL: ${{ github.event.inputs.image_url }}
           QUESTION: ${{ github.event.inputs.question }}
+
         run: |
           python3 <<'PY'
+
           import os
           import requests
           import base64
           import json
-          import subprocess
 
-          url = os.environ["IMAGE_URL"]
+          image_url = os.environ["IMAGE_URL"]
           question = os.environ["QUESTION"]
 
-          img = requests.get(url).content
+          print("Downloading image:", image_url)
 
-          encoded = base64.b64encode(img).decode()
+          img_request = requests.get(
+              image_url,
+              timeout=30
+          )
+
+          if img_request.status_code != 200:
+              raise Exception(
+                  f"Image download failed: {img_request.status_code}"
+              )
+
+          image = base64.b64encode(
+              img_request.content
+          ).decode("utf-8")
+
 
           payload = {
               "model": "llava",
               "prompt": question,
-              "images": [encoded],
+              "images": [
+                  image
+              ],
               "stream": False
           }
 
-          result = requests.post(
+
+          print("Asking AI...")
+
+          response = requests.post(
               "http://localhost:11434/api/generate",
-              json=payload
+              json=payload,
+              timeout=300
           )
 
-          print(result.json()["response"])
+
+          print("HTTP:", response.status_code)
+
+          data = response.json()
+
+
+          if "response" in data:
+              print("\n===== AI ANSWER =====")
+              print(data["response"])
+
+          else:
+              print("\n===== OLLAMA ERROR =====")
+              print(json.dumps(data, indent=2))
+              exit(1)
+
           PY
