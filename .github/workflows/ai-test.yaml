@@ -1,0 +1,39 @@
+# vision_ai.yaml
+
+name: Image Answer AI
+description: AI assistant that accepts images and answers questions
+
+model:
+  provider: openai
+  name: gpt-5.5-mini
+  capabilities:
+    - vision
+    - text
+
+input:
+  type: image
+  formats:
+    - "*"
+  images:
+    max_count: unlimited
+    max_size: unlimited
+
+behavior:
+  role: assistant
+  instructions:
+    - Analyze any uploaded image.
+    - Answer questions about images.
+    - Explain objects, text, people, scenes, and details.
+    - Provide reasoning when useful.
+    - Ask for clarification when the image is unclear.
+    - Never pretend to see details that are not visible.
+
+output:
+  type: text
+  format: markdown
+  length: unlimited
+
+limits:
+  requests: unlimited
+  tokens: unlimited
+  images: unlimited
